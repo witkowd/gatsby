@@ -3,6 +3,7 @@ const isOnline = require(`is-online`)
 const _ = require(`lodash`)
 const fs = require(`fs-extra`)
 const { createClient } = require(`contentful`)
+const fetch = require(`node-fetch`)
 
 const normalize = require(`./normalize`)
 const fetchData = require(`./fetch`)
@@ -35,15 +36,16 @@ const validateContentfulAccess = async pluginOptions => {
       },
     }
   )
-    .then(res => res.json())
-    .then(json => {
-      if (json.errors)
+    .then(res => res.ok)
+    .then(ok => {
+      if (!ok)
         throw new Error(
-          `Cannot access Contentful Space ${maskText(pluginOptions.spaceId)}`
+          `Cannot access Contentful space "${maskText(
+            pluginOptions.spaceId
+          )}" with access token "${maskText(
+            pluginOptions.accessToken
+          )}". Make sure to double check them!`
         )
-    })
-    .catch(err => {
-      throw new Error(`Fetch call to check Contentful access failed.`)
     })
 
   return undefined
